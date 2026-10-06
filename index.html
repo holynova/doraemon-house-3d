@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>哆啦A梦的家 · 3D立体导览</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:#0b1220}
+#app{display:flex;height:100%}
+#panel{width:296px;flex:0 0 296px;background:#0e1626;color:#e8eef6;display:flex;flex-direction:column;z-index:20;border-right:1px solid #1d2a44;transition:margin .25s}
+#panel.hide{margin-left:-296px}
+#panel header{padding:16px 16px 10px;border-bottom:1px solid #1d2a44}
+#panel h1{font-size:17px;font-weight:700;color:#fff}
+#panel h1 .b{color:#38bdf8}
+#panel p.sub{font-size:11px;color:#8ea0bd;margin-top:4px;line-height:1.5}
+#panel .body{flex:1;overflow-y:auto;padding:12px 14px 20px}
+#panel .body::-webkit-scrollbar{width:6px}
+#panel .body::-webkit-scrollbar-thumb{background:#24344f;border-radius:3px}
+.sec{margin-bottom:14px}
+.sec h2{font-size:12px;color:#7f93b3;font-weight:600;margin-bottom:8px;letter-spacing:.06em}
+.row{display:flex;flex-wrap:wrap;gap:6px}
+button{font-family:inherit;cursor:pointer}
+.vbtn{flex:1 1 40%;padding:8px 4px;font-size:13px;color:#dbe6f5;background:#16223a;border:1px solid #24344f;border-radius:9px;transition:.15s}
+.vbtn:hover{background:#1d2c4b}
+.vbtn.on{background:#0284c7;border-color:#38bdf8;color:#fff;font-weight:600}
+.chip{padding:7px 10px;font-size:12px;color:#dbe6f5;background:#16223a;border:1px solid #24344f;border-radius:20px;transition:.15s}
+.chip.on{background:#0e7490;border-color:#22d3ee;color:#fff}
+input[type=range]{width:100%;accent-color:#38bdf8;margin-top:4px}
+.range-lab{display:flex;justify-content:space-between;font-size:11px;color:#7f93b3;margin-top:2px}
+.cat{font-size:12px;color:#38bdf8;font-weight:700;margin:10px 0 6px;display:flex;align-items:center;gap:6px}
+.cat::after{content:"";flex:1;height:1px;background:#1d2a44}
+.pbtn{display:block;width:100%;text-align:left;padding:8px 10px;margin-bottom:5px;font-size:13px;color:#dbe6f5;background:#131d33;border:1px solid #1e2c47;border-radius:9px;transition:.15s}
+.pbtn:hover{background:#1a2742;border-color:#38bdf8}
+.pbtn.on{background:#0c4a6e;border-color:#38bdf8;color:#fff;font-weight:600}
+.pbtn .tag{float:right;font-size:10px;color:#7f93b3}
+#panel footer{padding:10px 14px;font-size:10px;color:#5b6d8c;border-top:1px solid #1d2a44;line-height:1.6}
+#view{flex:1;position:relative;min-width:0}
+#c{position:absolute;inset:0;width:100%;height:100%;display:block}
+#labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.lbl{position:absolute;transform:translate(-50%,-135%);background:rgba(8,16,30,.78);color:#fff;font-size:11px;padding:3px 9px;border-radius:11px;white-space:nowrap;border:1px solid rgba(125,200,255,.45);text-shadow:none}
+.lbl.hot{background:rgba(2,132,199,.92);border-color:#7dd3fc;font-weight:700}
+#info{position:absolute;top:14px;right:14px;width:272px;max-width:calc(100% - 28px);background:rgba(10,18,34,.94);border:1px solid #26406a;border-radius:14px;padding:14px 14px 12px;color:#e8eef6;display:none;z-index:15;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+#info.show{display:block}
+#info h3{font-size:15px;color:#fff;margin-bottom:2px}
+#info .c{font-size:11px;color:#38bdf8;margin-bottom:8px}
+#info p{font-size:12.5px;line-height:1.65;color:#c4d2e8}
+#info .x{position:absolute;top:8px;right:10px;background:none;border:none;color:#7f93b3;font-size:16px}
+#info .x:hover{color:#fff}
+#hint{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);font-size:11px;color:#b9c8de;background:rgba(8,16,30,.7);padding:6px 14px;border-radius:16px;border:1px solid rgba(125,200,255,.25);white-space:nowrap;z-index:5}
+#menuBtn{position:absolute;top:12px;left:12px;z-index:25;width:40px;height:40px;border-radius:12px;border:1px solid #26406a;background:rgba(10,18,34,.9);color:#fff;font-size:18px;display:none}
+#loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#0b1220;color:#7f93b3;font-size:14px;z-index:30;flex-direction:column;gap:10px}
+.spin{width:34px;height:34px;border:3px solid #1d2a44;border-top-color:#38bdf8;border-radius:50%;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (max-width:760px){
+  #panel{position:absolute;height:100%;box-shadow:4px 0 24px rgba(0,0,0,.5)}
+  #menuBtn{display:block}
+  #hint{display:none}
+}
+</style>
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+}}
+</script>
+</head>
+<body>
+<div id="app">
+  <aside id="panel">
+    <header>
+      <h1><span class="b">哆啦A梦</span>的家 · 3D导览</h1>
+      <p class="sub">野比家二层独栋小楼<br>外观 / 室内 / 全部件逐一参观</p>
+    </header>
+    <div class="body">
+      <div class="sec">
+        <h2>视角</h2>
+        <div class="row">
+          <button class="vbtn on" data-view="exterior">🏠 外观</button>
+          <button class="vbtn" data-view="f1">🛋 一楼</button>
+          <button class="vbtn" data-view="f2">🛏 二楼</button>
+          <button class="vbtn" data-view="xray">🔍 透视</button>
+        </div>
+      </div>
+      <div class="sec">
+        <h2>显示</h2>
+        <div class="row">
+          <button class="chip on" id="tLabels">🏷 标注</button>
+          <button class="chip" id="tRotate">🔁 自动旋转</button>
+        </div>
+        <div style="margin-top:10px">
+          <input type="range" id="explode" min="0" max="100" value="0"/>
+          <div class="range-lab"><span>💥 分层展开</span><span>屋顶 / 二楼 / 一楼</span></div>
+        </div>
+      </div>
+      <div class="sec">
+        <h2>部件列表 <span style="font-weight:400;color:#5b6d8c">· 点击查看介绍</span></h2>
+        <div id="parts"></div>
+      </div>
+    </div>
+    <footer>粉丝致敬的示意模型，户型为按动画印象还原，非官方图纸。<br>Three.js 实时渲染 · 可旋转缩放</footer>
+  </aside>
+  <div id="view">
+    <canvas id="c"></canvas>
+    <div id="labels"></div>
+    <div id="info">
+      <button class="x" id="infoX">✕</button>
+      <h3 id="infoName"></h3>
+      <div class="c" id="infoCat"></div>
+      <p id="infoDesc"></p>
+    </div>
+    <div id="hint">左键拖拽旋转 · 滚轮缩放 · 右键平移 · 点击任意部件查看介绍</div>
+    <button id="menuBtn">☰</button>
+    <div id="loading"><div class="spin"></div>正在搭建小屋…</div>
+  </div>
+</div>
+<script type="module" src="app.js"></script>
+</body>
+</html>
