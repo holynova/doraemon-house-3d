@@ -1,0 +1,10 @@
+.git/
+.github/
+node_modules/
+.wrangler/
+README.md
+REFERENCE.md
+wrangler.jsonc
+.gitignore
+.assetsignore
+assets/
