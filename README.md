@@ -1,8 +1,8 @@
 # Doraemon House 3D / 哆啦A梦的家 3D导览
 
-中文：基于 Three.js 制作的野比大雄家 3D 立体导览。按新版动画精细还原，支持外观、一楼、二楼及透视视角切换、层级分层展开、自动旋转与空间部件点击导览。
+中文：野比大雄家 3D 模型精细图解导览。按新版动画间取精细还原，极简展示房屋外观全景、结构分层展开、一楼与二楼剖面以及大雄房间特写细节。
 
-English: Interactive 3D walk-through of Nobita Nobi's house from Doraemon built with Three.js. Features exterior, first floor, second floor, and X-ray viewpoints, exploded floor view controls, and interactive room labels.
+English: Visual architectural walk-through of Nobita Nobi's house from Doraemon based on 3D reconstruction. Features exterior overview, exploded structural layers, floor cutaways, and detailed room viewpoints.
 
 ![Project screenshot](./assets/screenshot.png)
 
